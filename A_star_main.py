@@ -1,6 +1,6 @@
 import numpy as np
 
-
+#given a matrix, it wirtes a .txt file with the board
 def creation(M):
     
     dim = np.shape(M)
@@ -16,8 +16,7 @@ def creation(M):
     
     return 0
 
-
-
+#given a matrix and a list of points (which will be the path), it re-writes those points with a '2' 
 def visualization(M,P):
     for element in P:
         M[element[0],element[1]] = 2
@@ -25,15 +24,8 @@ def visualization(M,P):
     creation(M)
     return 0
 
-
-#M = np.zeros([7,7],int)
-#creation(M)
-
-
-#%%
-
+#given two points, it computes its heuristic distance
 def distance(R1,R2):
-    #le doy dos puntos y me saca su distancia (al cuadrado)
     x1 = R1[0]
     y1 = R1[1]
     x2 = R2[0]
@@ -42,9 +34,8 @@ def distance(R1,R2):
     return dist
 
 
-
+#given a point and a matrix, it gives a list with the coordinates of the adjacent points
 def colindant(M,R):
-    #le doy un punto y una matriz, y me saca los puntos adyacentes
     dim = np.shape(M)
     x = R[0]
     y = R[1]
@@ -134,10 +125,6 @@ def colindant(M,R):
     return P
         
     
-
-    
-
-#%%
 class Node:
     def __init__(self,position=None,parent=None):
         self.position = position
@@ -146,13 +133,11 @@ class Node:
         self.g = 0
         self.h = 0
         self.f = 0
-    
-    #ESTO NO TENGO CLARO QUÉ HACE, ASI QUE LO PONGO POR ACTO DE FE
-    #hypothesis--> enables the position change?
+        
     def __eq__(self, other):
         return self.position == other.position
 
-
+#main function
 def A_star(space,start_point,final_point):
     #initializing the open and closed lists
     open_list = []
@@ -210,7 +195,7 @@ def A_star(space,start_point,final_point):
         children_positions = colindant(space,current_node.position)
         
         #print(children_positions)
-        #saca correctamente todos los colindantes
+        
         
         
         
@@ -242,15 +227,10 @@ def A_star(space,start_point,final_point):
             
             #adding it to the open list
             open_list.append(child_node)
-            #print(child.position)
-        #print("so far so good")
             
-            
-        
-    
-    
-#%%
-maze = [[0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+       
+   
+space = [[0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
         [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -261,19 +241,13 @@ maze = [[0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
 
-space = np.array(maze)
-        
+space = np.array(space)       
 start = [7, 3]
-endd = [2, 8]
+end = [2, 8]
 
-#space= np.zeros([64,64],int)
-
-path = A_star(space,start,endd)
-
-#creation(space)
-
+path = A_star(space,start,end)
 visualization(space,path)
-#FUNCIONA!!!
+
 
 
     
