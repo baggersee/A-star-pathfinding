@@ -171,13 +171,9 @@ def A_star(space,start_point,final_point):
             if item.f < current_node.f:
                 current_node = item
                 
-        #print(current_node.position)
-        
-        
         #removing the current node from the open list and adding it to the closed list
         open_list.remove(current_node)
         closed_list.append(current_node)
-        
         
         #checking if it already made it
         if current_node.position == final_node.position:
@@ -190,21 +186,15 @@ def A_star(space,start_point,final_point):
                 
             return path
         
-        
         #generating the children
         children_positions = colindant(space,current_node.position)
-        
-        #print(children_positions)
-        
-        
-        
         
         #treating the children
         for child_position in children_positions:
             
             #checking if there is some forbidden position
             if space[ child_position[0],child_position[1] ] == 1:
-                #children_positions.remove(child_position)
+                #children_positions.remove(child_position)--> this did strange things
                 continue
             
             #instauring the child as a Node
@@ -247,11 +237,3 @@ end = [2, 8]
 
 path = A_star(space,start,end)
 visualization(space,path)
-
-
-
-    
-    
-    
-    
-    
