@@ -1,5 +1,3 @@
-
-
 def distance(R1,R2):
     # function that computes the heuristic distance
     x1 = R1[0]
