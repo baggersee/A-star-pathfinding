@@ -5,7 +5,7 @@ from A_star_functions import colindant, distance
 # VARIABLES
 
 # pygame parameters
-WIDTH = 650
+WIDTH = 650 # size of the pygame window
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 pygame.display.set_caption("A* Path Finding Algorithm")
 ROWS = 15 # number of rows and columns of the board
@@ -24,7 +24,6 @@ GREY = (128, 128, 128) # for the lines that draw the different squares of the bo
 
 class Node:
     def __init__(self,position=None,parent=None,width=None):
-        
         self.position = position # given as a list
         self.parent = parent # given as another Node
         #initializing the node's parameters:
@@ -46,7 +45,6 @@ class Node:
 # A* ALGORITHM
 
 def A_star(space_m,space,start_point,final_point,width):
-    
     #initializing the open and closed lists
     open_list = []
     closed_list = []
@@ -73,25 +71,19 @@ def A_star(space_m,space,start_point,final_point,width):
             if event.type == pygame.QUIT:        
                 pygame.quit()
                 
-        
-        
         # changing the color of the Nodes that are included in the open list
         for open_node in open_list:
             if space[open_node.position[1]][open_node.position[0]].color == WHITE:
                 space[open_node.position[1]][open_node.position[0]].color = RED
     
         draw(WIN,space,ROWS,width) 
-        
-        
-        
-        
+            
         # searching the current node as the one with smallest 'F'
         current_node = open_list[0]
         for item in open_list:
             if item.f < current_node.f:
                 current_node = item
             
-        
         # removing the current node from the open list and adding it to the closed list
         open_list.remove(current_node)
         closed_list.append(current_node)
@@ -107,7 +99,6 @@ def A_star(space_m,space,start_point,final_point,width):
             
             path = path[::-1]
             return path
-        
         
         #generating the children
         children_positions = colindant(space_m,current_node.position)
@@ -127,7 +118,6 @@ def A_star(space_m,space,start_point,final_point,width):
             if closed == 1:
                 continue
                     
-            
             # setting the child as a Node
             child_node = Node(child_position,current_node,width)
             
@@ -147,7 +137,6 @@ def A_star(space_m,space,start_point,final_point,width):
                     
             if param == 1:
                 continue
-            
             
     for event in pygame.event.get():    
         if event.type == pygame.QUIT:        
@@ -190,7 +179,7 @@ def draw(win, grid, rows, width):
 	draw_grid(win, rows, width)
 	pygame.display.update()            
 
-
+	
 def get_clicked_pos(pos, rows, width):
     # function that saves the (matrix) position when a certain square is clicked 
 	gap = width // rows
@@ -203,7 +192,6 @@ def get_clicked_pos(pos, rows, width):
 # MAIN FUNCTION
   
 def main(win, width,ROWS):
-    
     # building the grid matrix with the Nodes
     space = make_grid(ROWS, width)
     # another matrix just to hold the infrmation of free and obstacles positions
@@ -278,10 +266,5 @@ def main(win, width,ROWS):
     				   
     pygame.quit()
     
-
 # RUNNING THE GAME
-    
 main(WIN,WIDTH,ROWS)
-
-
-
