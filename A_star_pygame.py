@@ -1,48 +1,50 @@
 import pygame
 import numpy as np
-from A_star_functions import creation,distance,colindant,visualization
+from A_star_functions import colindant, distance
 
-# variables for pygame
+# VARIABLES
 
+# pygame parameters
 WIDTH = 650
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 pygame.display.set_caption("A* Path Finding Algorithm")
+ROWS = 15 # number of rows and columns of the board
 
-ROWS = 15 
+# colors RGB codes
+RED = (255, 0, 0) # for Nodes in the open list
+WHITE = (255, 255, 255) # for empty Nodes
+BLACK = (0, 0, 0) # for obstacles Nodes
+ORANGE = (255, 165 ,0) # for the initial point
+TURQUOISE = (64, 224, 208) # for the final point
+PURPLE = (128, 0, 128) # for the path 
+GREY = (128, 128, 128) # for the lines that draw the different squares of the board
 
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 255, 0)
-YELLOW = (255, 255, 0)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-PURPLE = (128, 0, 128)
-ORANGE = (255, 165 ,0)
-GREY = (128, 128, 128)
-TURQUOISE = (64, 224, 208) 
 
-# Node class
+# NODE CLASS
+
 class Node:
     def __init__(self,position=None,parent=None,width=None):
         
-        self.position = position
-        self.parent = parent
-        #initializing the node's parameters
+        self.position = position # given as a list
+        self.parent = parent # given as another Node
+        #initializing the node's parameters:
         self.g = 0
         self.h = 0
         self.f = 0
         
         self.color = WHITE
-        self.width = width # anchura de cada nodo--> de cada cuadrado
+        self.width = width # width of every square in the Pygame interface
         
-        #posiciones en el tablero
-        self.x = position[0]*width # posicion x en el tablero
-        self.y = position[1]*width # posicion y en el tablero
+        #positions of a Node on the board:
+        self.x = position[0]*width # x position
+        self.y = position[1]*width # y position
     
     def __lt__(self,other):
         return False
-     
-# A* pathfinding algorithm 
+    
+         
+# A* ALGORITHM
+
 def A_star(space_m,space,start_point,final_point,width):
     
     #initializing the open and closed lists
@@ -60,18 +62,37 @@ def A_star(space_m,space,start_point,final_point,width):
     final_node.h = 0
     final_node.f = 0
     
-    #adding the initial node to the open list
+    # adding the initial node to the open list
     open_list.append(initial_node)
     
-    #the process begins
+    # the searching process begins
     while len(open_list) !=0:
-        #defining the current node->the one with least f
+        
+        # this loop enable us to close the Pygame window at any moment during the process
+        for event in pygame.event.get():    
+            if event.type == pygame.QUIT:        
+                pygame.quit()
+                
+        
+        
+        # changing the color of the Nodes that are included in the open list
+        for open_node in open_list:
+            if space[open_node.position[1]][open_node.position[0]].color == WHITE:
+                space[open_node.position[1]][open_node.position[0]].color = RED
+    
+        draw(WIN,space,ROWS,width) 
+        
+        
+        
+        
+        # searching the current node as the one with smallest 'F'
         current_node = open_list[0]
         for item in open_list:
             if item.f < current_node.f:
                 current_node = item
-                  
-        #removing the current node from the open list and adding it to the closed list
+            
+        
+        # removing the current node from the open list and adding it to the closed list
         open_list.remove(current_node)
         closed_list.append(current_node)
         
@@ -86,76 +107,82 @@ def A_star(space_m,space,start_point,final_point,width):
             
             path = path[::-1]
             return path
-      
+        
+        
         #generating the children
         children_positions = colindant(space_m,current_node.position)
-   
+        
         #treating the children
         for child_position in children_positions:
+            
             #checking if there is some forbidden position
             if space_m[ child_position[0],child_position[1] ] == 1:
                 continue 
             
-            #setting the child as a Node
+            # checking if it is in the closed list
+            closed = 0
+            for closed_node in closed_list:
+                if child_position == closed_node.position:
+                    closed = 1
+            if closed == 1:
+                continue
+                    
+            
+            # setting the child as a Node
             child_node = Node(child_position,current_node,width)
             
-            #checking if it is in the closed list
-            for closed_child in closed_list:
-                if child_node == closed_child:
-                    continue
-            
-            #computing its parameters
+            # computing its parameters
             child_node.g = current_node.g + 1
             child_node.h = distance(child_node.position,final_node.position)
             child_node.f = child_node.g + child_node.h
-            
-            #checking if it is in the open list
-            for open_node in open_list:
-                if child_node == open_node and child_node.g > open_node.g:
-                    closed_list.append(child_node)
-                    continue
-                
-            #adding it to the open list
             open_list.append(child_node)
-            if child_node.position != initial_node.position and child_node.position != final_node.position:
-                if space[child_node.position[1]][child_node.position[0]].color != RED:
-                    space[child_node.position[1]][child_node.position[0]].color = RED
+             
+            #checking if it is in the open list
+            param = 0
+            for open_node in open_list:
+                if child_node.position == open_node.position and child_node.g < open_node.g:
+                    open_list.remove(open_node)
+                    closed_list.append(child_node)
+                    param = 1
                     
-                else:
-                    space[child_node.position[1]][child_node.position[0]].color = BLUE
+            if param == 1:
+                continue
             
-            draw(WIN,space,ROWS,width)
             
-# auxilary pygame functions
+    for event in pygame.event.get():    
+        if event.type == pygame.QUIT:        
+            pygame.quit()
+    
+
+# AUXILAR FUNCTIONS
 
 def make_grid(rows, width):
+    # function to build the matrix that enable to construct the board later
     # rows = number of rows of the board
     # width = pixel length of the window
 	grid = []
-	gap = width // rows # division entera-> anchura de cada cuadrado
+	gap = width // rows # i teger division-> width of every square on the board
 	for i in range(rows):
 		grid.append([])
 		for j in range(rows):
 			node = Node([i, j], None, gap)
 			grid[i].append(node)
     
-    # 'grid' is the matrix of the board. In each position it holds a Node (Object)
+    # 'grid' is the matrix of the board. In each position it holds a Node object
 	return grid
 
 
-
 def draw_grid(win, rows, width):
-    # function to draw the board--> called in the aux function 'draw'
-	gap = width // rows # anchura de cada cuadrado
+    # function to draw the empty board--> called in the aux function 'draw'
+	gap = width // rows # width of the squares (same as in 'make_grid' function)
 	for i in range(rows):
 		pygame.draw.line(win, GREY, (0, i * gap), (width, i * gap))
-        #pygame.draw.line(win, GREY, donde empieza , donde acaba
 		for j in range(rows):
 			pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
             
- 
 
 def draw(win, grid, rows, width):
+    # function that draws the board with the Nodes during all the game
 	win.fill(WHITE)
 	for row in grid:
 		for node in row:
@@ -163,23 +190,23 @@ def draw(win, grid, rows, width):
 	draw_grid(win, rows, width)
 	pygame.display.update()            
 
+
 def get_clicked_pos(pos, rows, width):
+    # function that saves the (matrix) position when a certain square is clicked 
 	gap = width // rows
 	y, x = pos
-
 	row = y // gap
 	col = x // gap
-
 	return row, col
 
 
-
-#%% main function
+# MAIN FUNCTION
   
-def main(win, width):
+def main(win, width,ROWS):
     
-    ROWS = 15
+    # building the grid matrix with the Nodes
     space = make_grid(ROWS, width)
+    # another matrix just to hold the infrmation of free and obstacles positions
     space_matrix = np.zeros((ROWS,ROWS),int)
     
     start = None
@@ -187,30 +214,36 @@ def main(win, width):
 	
     run = True
     while run:
-		
+        
         draw(WIN,space,ROWS,width)
         for event in pygame.event.get():
             
+            # quiting and closing the game
             if event.type == pygame.QUIT:
                 run = False
-                
+            
+            # detecting a click with the left side of the mouse
             if pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()
                 row,col = get_clicked_pos(pos,ROWS,width)
                 node_selected = space[row][col]
                 
+                # setting up the initial point/Node
                 if start == None and node_selected != end:
                     start = node_selected
-                    start.color = ORANGE 
-                
+                    start.color = ORANGE
+                    
+                # setting up the final point/Node
                 elif end == None and node_selected != start:
                     end = node_selected
                     end.color = TURQUOISE
-                    
+                
+                # setting up obstacles
                 elif node_selected != start and node_selected != end:
                     node_selected.color = BLACK
                     space_matrix[node_selected.position[1],node_selected.position[0]] = 1
-                   
+                    
+            # detecting a click with the right side of the mouse
             elif pygame.mouse.get_pressed()[2]:
                 pos = pygame.mouse.get_pos()
                 row,col = get_clicked_pos(pos,ROWS,width)
@@ -218,33 +251,37 @@ def main(win, width):
                 node_selected.color = WHITE
                 space_matrix[node_selected.position[1],node_selected.position[0]] = 0
     				
-    				
                 if node_selected == start:
                     start = None
-                    
+                   
                 elif node_selected == end:
                     end = None
-                  
+            
+            # detecting KEYDOWN to start running the A* algorithm
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and start != None and end != None:
-                    
                     start.position = start.position[::-1]
                     end.position = end.position[::-1]
                     pygame.display.set_caption("thinking...")
+                    
+                    # calling the A* algorithm to get the path
                     path = A_star(space_matrix,space,start.position,end.position,width)
                     walk = len(path)
-                    
                     pygame.display.set_caption("still thinking...")
-                    
-                    start.color = ORANGE
-                    end.color = TURQUOISE
                     
                     for j in range(1,walk-1):
                         step = path[j]
                         space[step[1]][step[0]].color = PURPLE
                         draw(WIN,space,ROWS,width)
+                        
                     pygame.display.set_caption("A* Path Finding Algorithm")
-    				  
+    				   
     pygame.quit()
     
-main(WIN,WIDTH)
+
+# RUNNING THE GAME
+    
+main(WIN,WIDTH,ROWS)
+
+
+
