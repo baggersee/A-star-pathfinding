@@ -11,7 +11,7 @@ The code is runned as follows:
 * To set up a new board, the window must be closed and the main file 'A_star_pygame' must be runned again.
 
 ## Future improvements
-* Implement better aesthetics in the Pygame interface
+* Implement better aesthetics in the Pygame interface.
 * Implement the possibility of setting up a new board directly by pressing space bar again, instead of having to close the window and run again the main file.
 
 
